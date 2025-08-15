@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>死神先輩と春の約束</title>
+  <style>
+    body {
+      font-family: "Yu Gothic", sans-serif;
+      background-color: #fdf6f0;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    #game {
+      max-width: 90%;
+      margin: 30px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #characterArea {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    #characterArea img {
+      max-width: 40%;
+      height: auto;
+      border-radius: 10px;
+      display: none;
+    }
+    #text {
+      font-size: 16px;
+      margin-bottom: 20px;
+      white-space: pre-wrap;
+      min-height: 80px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #ffb6c1;
+      cursor: pointer;
+    }
+    input[type="text"] {
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      width: 80%;
+      margin-top: 10px;
+    }
+    #nextBtn {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <div id="nameInput">
+      <label>主人公の名前を入力してください：</label><br>
+      <input type="text" id="playerName" placeholder="名前を入力">
+      <br><br>
+      <button onclick="startGame()">スタート</button>
+    </div>
+
+    <div id="characterArea">
+      <img id="heroine" src="images/heroine.png" alt="主人公">
+      <img id="namo" src="images/namo.png" alt="名無ネモ">
+    </div>
+
+    <div id="text" style="display:none;"></div>
+    <button id="nextBtn" onclick="showNextLine()">次へ</button>
+    <div id="choices" style="display:none;"></div>
+  </div>
+
+  <script>
+    const script = [
+      "明日から春休みだと言うのに、何の予定も立てていない。\nせめて1日くらい、どこかに出かけたいな……",
+      "主「……あれ？あそこにいるのは……」",
+      "名「お、（主人公）じゃん。どしたん、そんな浮かない顔して。」",
+      "主「明日から春休みだって言うのに、何の予定も無いんですよー！」",
+      "名「あ～そういうことね。」",
+      "名「そしたら俺とどっか行く？4月1日なら空いてるよ。」",
+      "主「え、ほんとですか！行きたいです！」",
+      "名「おっけー。ちなみに行きたいところある？」",
+      "主「そうだなぁ……"
+    ];
+
+    const choices = [
+      { text: "🌳 木を見に行く", result: [
+        "主「私……見に行きたい木があるんです！」",
+        "名「……木？？」",
+        "主「はい！木です！きっと先輩も気に入ってくれると思うんです！」",
+        "名「そっかぁ……じゃあ木、見に行くか。」",
+        "主「やった！楽しみです！」",
+        "（画面がフェードアウト → 日付表示「4月1日」）"
+      ]},
+      { text: "🌶 激辛グルメを食べに行く", result: [
+        "主「私、食べに行きたいものがあって！」",
+        "名「食べに行きたいもの？」",
+        "主「はい！超激辛ラーメンなんですけど、どうですか？」",
+        "名「げ、激辛……ラーメン……」",
+        "主「あ、もしかして先輩って辛いのムリな感じですか？」",
+        "名「ム、ムリじゃねーし。全然食えるし。舐めんなし。」",
+        "主「やったー！約束ですからね！」",
+        "（主人公がその場を立ち去る効果音）",
+        "名「……やってもうた……」",
+        "（画面がフェードアウト → 日付表示「4月1日」）"
+      ]},
+      { text: "⚰️ 冥界へ行く", result: [
+        "主「……冥界に行ってみたいです。」",
+        "名「え、えええ！？ 冥界！？」",
+        "主「はい。死神先輩なら案内できるかなって……」",
+        "名「……まぁ、行けなくはないけど……覚悟はある？」",
+        "主「もちろんです！」",
+        "名「じゃあ、4月1日。冥界で待ってる。」",
+        "（画面がフェードアウト → 日付表示「4月1日」）"
+      ]}
+    ];
+
+    let currentLine = 0;
+    let playerName = "";
+
+    function startGame() {
+      const nameInput = document.getElementById("playerName").value.trim();
+      if (nameInput === "") {
+        alert("名前を入力してください！");
+        return;
+      }
+      playerName = nameInput;
+      document.getElementById("nameInput").style.display = "none";
+      document.getElementById("text").style.display = "block";
+      document.getElementById("nextBtn").style.display = "inline-block";
+      showNextLine();
+    }
+
+    function showNextLine() {
+      const textBox = document.getElementById("text");
+      if (currentLine < script.length) {
+        let line = script[currentLine];
+        line = line.replace("（主人公）", playerName);
+        textBox.textContent = line;
+
+        // 立ち絵の切り替え
+        if ([2, 5, 6, 7].includes(currentLine)) {
+          showCharacter("namo");
+        } else if ([3, 4, 8].includes(currentLine)) {
+          showCharacter("heroine");
+        } else {
+          hideCharacters();
+        }
+
+        currentLine++;
+      } else {
+        document.getElementById("nextBtn").style.display = "none";
+        showChoices();
+      }
+    }
+
+    function showCharacter(name) {
+      const heroine = document.getElementById("heroine");
+      const namo = document.getElementById("namo");
+      heroine.style.display = name === "heroine" ? "block" : "none";
+      namo.style.display = name === "namo" ? "block" : "none";
+    }
+
+    function hideCharacters() {
+      document.getElementById("heroine").style.display = "none";
+      document.getElementById("namo").style.display = "none";
+    }
+
+    function showChoices() {
+      const choicesBox = document.getElementById("choices");
+      choicesBox.innerHTML = "";
+      choicesBox.style.display = "block";
+      document.getElementById("text").textContent = "どこに行こうかな？";
+      hideCharacters();
+
+      choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.textContent = choice.text;
+        btn.onclick = () => showResult(choice.result);
+        choicesBox.appendChild(btn);
+      });
+    }
+
+    function showResult(resultLines) {
+      const textBox = document.getElementById("text");
+      const choicesBox = document.getElementById("choices");
+      choicesBox.style.display = "none";
+      let i = 0;
+
+      function displayLine() {
+        if (i < resultLines.length) {
+          textBox.textContent = resultLines[i];
+          i++;
+          setTimeout(displayLine, 1500);
+        }
+      }
+
+      displayLine();
+    }
+  </script>
+</body>
+</html>
